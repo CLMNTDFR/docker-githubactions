@@ -24,13 +24,17 @@ jobs:
           password: ${{ secrets.CR_PAT }}
 
       - name: Convert username to lowercase
-        id: lowercaseuser
-        run: echo "LOWERCASE_USER=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        id: convert-username
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const lowercaseUser = github.actor.toLowerCase();
+            return lowercaseUser;
+        result-encoding: string
+        result: lowercase_user
 
       - name: Build Docker image
-        run: |
-          docker build -t ghcr.io/${{ env.LOWERCASE_USER }}/docker-githubactions:latest .
+        run: docker build -t ghcr.io/${{ steps.convert-username.outputs.lowercase_user }}/docker-githubactions:latest .
 
       - name: Push Docker image
-        run: |
-          docker push ghcr.io/${{ env.LOWERCASE_USER }}/docker-githubactions:latest
+        run: docker push ghcr.io/${{ steps.convert-username.outputs.lowercase_user }}/docker-githubactions:latest
