@@ -26,14 +26,20 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.CR_PAT }}
 
+    # Convert repository name to lowercase
+    - name: Convert repository name to lowercase
+      id: lowercaserepo
+      run: |
+        REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        echo "::set-output name=repo::$REPO_NAME"
+        echo "Converted repository name: $REPO_NAME"
+
     # Build the Docker image
     - name: Build Docker image
       run: |
-        REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/${REPO_NAME}:latest .
+        docker build -t ghcr.io/${{ steps.lowercaserepo.outputs.repo }}:latest .
 
     # Push the Docker image to GitHub Container Registry
     - name: Push Docker image
       run: |
-        REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-        docker push ghcr.io/${REPO_NAME}:latest
+        docker push ghcr.io/${{ steps.lowercaserepo.outputs.repo }}:latest
