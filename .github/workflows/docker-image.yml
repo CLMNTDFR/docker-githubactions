@@ -31,7 +31,7 @@ jobs:
       run: |
         docker build -t ghcr.io/${{ github.repository }}:latest .
 
-    # Push the Docker image to the GitHub Container Registry
+    # Push the Docker image to the GitHub Containe Registry
     - name: Push Docker image
       run: |
         docker push ghcr.io/${{ github.repository }}:latest
