@@ -23,18 +23,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CR_PAT }}
 
-      - name: Convert username to lowercase
-        id: convert-username
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const lowercaseUser = github.actor.toLowerCase();
-            return lowercaseUser;
-        result-encoding: string
-        result: lowercase_user
+      - name: Set lowercase username
+        id: username
+        run: echo "::set-output name=lowercase_user::${{ github.actor }}"
+
+      - name: Convert to lowercase
+        id: convert
+        run: |
+          LOWERCASE_USER=$(echo ${{ steps.username.outputs.lowercase_user }} | tr '[:upper:]' '[:lower:]')
+          echo "::set-output name=lowercase_user::$LOWERCASE_USER"
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ steps.convert-username.outputs.lowercase_user }}/docker-githubactions:latest .
+        run: docker build -t ghcr.io/${{ steps.convert.outputs.lowercase_user }}/docker-githubactions:latest .
 
       - name: Push Docker image
-        run: docker push ghcr.io/${{ steps.convert-username.outputs.lowercase_user }}/docker-githubactions:latest
+        run: docker push ghcr.io/${{ steps.convert.outputs.lowercase_user }}/docker-githubactions:latest
